@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Game Đập Chuột</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #222;
+      color: white;
+      text-align: center;
+    }
+    h1 {
+      margin-top: 20px;
+    }
+    .score-board {
+      margin: 20px;
+      font-size: 20px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 100px);
+      grid-gap: 15px;
+      justify-content: center;
+    }
+    .hole {
+      width: 100px;
+      height: 100px;
+      background: #444;
+      border-radius: 10px;
+      position: relative;
+      cursor: pointer;
+    }
+    .mole {
+      width: 80px;
+      height: 80px;
+      background: url('https://cdn-icons-png.flaticon.com/512/616/616408.png') no-repeat center;
+      background-size: contain;
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      display: none;
+    }
+    button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 16px;
+      background: #61dafb;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>🐹 Game Đập Chuột</h1>
+  <div class="score-board">
+    Điểm: <span id="score">0</span> | Thời gian: <span id="time">30</span>s
+  </div>
+  <div class="grid" id="grid"></div>
+  <button onclick="startGame()">Bắt đầu chơi</button>
+
+  <audio id="hitSound" src="https://cdn.pixabay.com/audio/2022/03/15/audio_c9f4d0cb85.mp3"></audio>
+
+  <script>
+    const grid = document.getElementById("grid");
+    const scoreDisplay = document.getElementById("score");
+    const timeDisplay = document.getElementById("time");
+    const hitSound = document.getElementById("hitSound");
+
+    let score = 0;
+    let currentMole;
+    let timeLeft = 30;
+    let timerId;
+    let moleTimerId;
+
+    function createGrid() {
+      for (let i = 0; i < 9; i++) {
+        const hole = document.createElement("div");
+        hole.classList.add("hole");
+
+        const mole = document.createElement("div");
+        mole.classList.add("mole");
+
+        mole.addEventListener("click", () => {
+          if (mole === currentMole) {
+            score++;
+            scoreDisplay.textContent = score;
+            hitSound.play();
+            mole.style.display = "none";
+            currentMole = null;
+          }
+        });
+
+        hole.appendChild(mole);
+        grid.appendChild(hole);
+      }
+    }
+
+    function randomMole() {
+      const moles = document.querySelectorAll(".mole");
+      moles.forEach(m => m.style.display = "none");
+
+      const index = Math.floor(Math.random() * moles.length);
+      const mole = moles[index];
+      mole.style.display = "block";
+      currentMole = mole;
+    }
+
+    function startGame() {
+      score = 0;
+      timeLeft = 30;
+      scoreDisplay.textContent = score;
+      timeDisplay.textContent = timeLeft;
+      clearInterval(timerId);
+      clearInterval(moleTimerId);
+
+      moleTimerId = setInterval(randomMole, 700);
+      timerId = setInterval(() => {
+        timeLeft--;
+        timeDisplay.textContent = timeLeft;
+        if (timeLeft <= 0) {
+          clearInterval(timerId);
+          clearInterval(moleTimerId);
+          alert("⏰ Hết giờ! Bạn được " + score + " điểm.");
+        }
+      }, 1000);
+    }
+
+    createGrid();
+  </script>
+</body>
+</html>
